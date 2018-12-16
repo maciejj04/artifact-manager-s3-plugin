@@ -242,13 +242,13 @@ public class JCloudsArtifactManagerTest extends S3AbstractTest {
         ArtifactManagerConfiguration.get().getArtifactManagerFactories().add(getArtifactManagerFactory(null, null));
         WorkflowJob p = j.createProject(WorkflowJob.class, "p");
         p.setDefinition(new CpsFlowDefinition("node {writeFile file: 'f', text: 'content'; archiveArtifacts 'f'; dir('d') {try {unarchive mapping: ['f': 'f']} catch (x) {sleep 1; echo(/caught $x/)}}}", true));
-        S3BlobStore.BREAK_CREDS = true;
+        S3BlobStoreProvider.BREAK_CREDS = true;
         try {
             WorkflowRun b = j.buildAndAssertSuccess(p);
             j.assertLogContains("caught java.io.IOException: org.jclouds.aws.AWSResponseException", b);
             j.assertLogNotContains("java.io.NotSerializableException", b);
         } finally {
-            S3BlobStore.BREAK_CREDS = false;
+            S3BlobStoreProvider.BREAK_CREDS = false;
         }
     }
 

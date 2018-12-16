@@ -44,7 +44,7 @@ public class S3BlobStoreConfigTest {
 
     @Test
     public void checkConfigurationManually() throws Exception {
-        S3BlobStore provider = new S3BlobStore();
+        S3BlobStoreProvider provider = new S3BlobStoreProvider();
         S3BlobStoreConfig config = S3BlobStoreConfig.get();
         config.setContainer(CONTAINER_NAME);
         config.setPrefix(CONTAINER_PREFIX);
@@ -54,7 +54,7 @@ public class S3BlobStoreConfigTest {
 
         LOGGER.info(artifactManagerFactory.getProvider().toString());
         BlobStoreProvider providerConfigured = artifactManagerFactory.getProvider();
-        assertTrue(providerConfigured instanceof S3BlobStore);
+        assertTrue(providerConfigured instanceof S3BlobStoreProvider);
         checkFieldValues(config);
 
         //check configuration page submit

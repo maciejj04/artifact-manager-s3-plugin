@@ -29,7 +29,8 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nonnull;
 
-import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
@@ -44,7 +45,6 @@ import com.amazonaws.services.s3.model.Bucket;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.ExtensionList;
-import hudson.Util;
 import hudson.model.Failure;
 import hudson.util.FormValidation;
 import io.jenkins.plugins.artifact_manager_jclouds.JCloudsVirtualFile;
@@ -53,8 +53,10 @@ import io.jenkins.plugins.aws.global_configuration.CredentialsAwsGlobalConfigura
 import jenkins.model.Jenkins;
 import org.jenkinsci.Symbol;
 
+import static hudson.Util.fixEmpty;
+
 /**
- * Store the S3BlobStore configuration to save it on a separate file. This make that
+ * Store the S3BlobStoreProvider configuration to save it on a separate file. This make that
  * the change of container does not affected to the Artifact functionality, you could change the container
  * and it would still work if both container contains the same data.
  */
@@ -89,7 +91,7 @@ public class S3BlobStoreConfig extends AbstractAwsGlobalConfiguration {
     /**
      * class to test configuration against Amazon S3 Bucket.
      */
-    private static class S3BlobStoreTester extends S3BlobStore {
+    private static class S3BlobStoreTester extends S3BlobStoreProvider {
         private static final long serialVersionUID = -3645770416235883487L;
         private transient S3BlobStoreConfig config;
 
@@ -107,7 +109,7 @@ public class S3BlobStoreConfig extends AbstractAwsGlobalConfiguration {
 
     public S3BlobStoreConfig() {
         load();
-        if (Util.fixEmpty(region) != null || Util.fixEmpty(credentialsId) != null) {
+        if (fixEmpty(region) != null || fixEmpty(credentialsId) != null) {
             CredentialsAwsGlobalConfiguration.get().setRegion(region);
             CredentialsAwsGlobalConfiguration.get().setCredentialsId(credentialsId);
             region = null;
@@ -242,7 +244,7 @@ public class S3BlobStoreConfig extends AbstractAwsGlobalConfiguration {
         Jenkins.get().checkPermission(Jenkins.ADMINISTER);
         FormValidation ret = FormValidation.ok("success");
         try {
-            S3BlobStore provider = new S3BlobStoreTester(container, prefix);
+            S3BlobStoreProvider provider = new S3BlobStoreTester(container, prefix);
             JCloudsVirtualFile jc = new JCloudsVirtualFile(provider, container, prefix);
             jc.list();
         } catch (Throwable t){
@@ -251,7 +253,14 @@ public class S3BlobStoreConfig extends AbstractAwsGlobalConfiguration {
         }
         try {
             checkGetBucketLocation(container);
-        } catch (Throwable t){
+        } catch (SdkClientException e) {
+            if (e instanceof AmazonServiceException) {
+                ret = FormValidation.warning(e, "Errors occurred in Amazon S3 while processing the request");
+                return ret;
+            }
+            ret = FormValidation.warning(e, "Error encountered in the client while making the request or handling the response.");
+        }
+        catch (Throwable t){
             ret = FormValidation.warning(t, "GetBucketLocation failed");
         }
         return ret;

@@ -94,7 +94,7 @@ public class JCloudsVirtualFileTest extends S3AbstractTest {
     }
 
     private JCloudsVirtualFile newJCloudsBlobStore(String path) {
-        return new JCloudsVirtualFile(new S3BlobStore(), getContainer(), path.replaceFirst("/$", ""));
+        return new JCloudsVirtualFile(new S3BlobStoreProvider(), getContainer(), path.replaceFirst("/$", ""));
     }
 
     @Test

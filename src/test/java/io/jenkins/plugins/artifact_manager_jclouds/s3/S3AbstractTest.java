@@ -105,7 +105,7 @@ public abstract class S3AbstractTest {
 
     @Before
     public void setupContext() throws Exception {
-        provider = new S3BlobStore();
+        provider = new S3BlobStoreProvider();
         S3BlobStoreConfig config = S3BlobStoreConfig.get();
         config.setContainer(S3_BUCKET);
         config.setPrefix(S3_DIR);

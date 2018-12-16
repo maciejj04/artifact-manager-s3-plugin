@@ -69,14 +69,14 @@ import org.jenkinsci.Symbol;
  * profiles,...
  */
 @Restricted(NoExternalUse.class)
-public class S3BlobStore extends BlobStoreProvider {
+public class S3BlobStoreProvider extends BlobStoreProvider {
 
-    private static final Logger LOGGER = Logger.getLogger(S3BlobStore.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(S3BlobStoreProvider.class.getName());
 
     private static final long serialVersionUID = -8864075675579867370L;
 
     @DataBoundConstructor
-    public S3BlobStore() {
+    public S3BlobStoreProvider() {
     }
 
     @Override
@@ -220,7 +220,7 @@ public class S3BlobStore extends BlobStoreProvider {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("S3BlobStore{");
+        final StringBuilder sb = new StringBuilder("S3BlobStoreProvider{");
         sb.append("container='").append(getContainer()).append('\'');
         sb.append(", prefix='").append(getPrefix()).append('\'');
         sb.append(", region='").append(getRegion()).append('\'');

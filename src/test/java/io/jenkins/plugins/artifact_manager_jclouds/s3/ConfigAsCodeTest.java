@@ -48,7 +48,7 @@ public class ConfigAsCodeTest {
         List<ArtifactManagerFactory> artifactManagerFactories = ArtifactManagerConfiguration.get().getArtifactManagerFactories();
         assertEquals(1, artifactManagerFactories.size());
         JCloudsArtifactManagerFactory mgr = (JCloudsArtifactManagerFactory) artifactManagerFactories.get(0);
-        assertEquals(S3BlobStore.class, mgr.getProvider().getClass());
+        assertEquals(S3BlobStoreProvider.class, mgr.getProvider().getClass());
         assertEquals("us-east-1", CredentialsAwsGlobalConfiguration.get().getRegion());
         assertEquals("jenkins_data/", S3BlobStoreConfig.get().getPrefix());
     }
